@@ -9,9 +9,9 @@ const fs = require("fs");
 
 const init = () => {
     console.log(
-        chalk.yellow(
+        chalk.red(
             figlet.textSync('Check Me Out',{
-                font:"Ghost",
+                font:"poison",
                 horizontalLayout:"default",
                 verticalLayout:"default"
             })
@@ -30,6 +30,14 @@ const askForFile = () => {
     return inquirer.prompt(q);
 };
 
+const createBuffer = (file) => {
+    fs.readFile(file, (err, data) => {
+        if (err) throw error;
+        console.log(data);
+        return data;
+    });
+}
+
 const run = async () => {
     //show script intro
     init ();
@@ -43,6 +51,8 @@ const run = async () => {
     };
 
     //create a buffer for the file
+    console.log(typeof file.FILENAME);
+    const buffer = createBuffer(`${file.FILENAME}`);
 
     //attach the buffer to the body of the request
 };
