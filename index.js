@@ -37,11 +37,13 @@ const run = async () => {
     let file = "badFilePath";
     //check to see if a file exists at the filepath
     file = await askForFile();
-
     while (!fs.existsSync(`${file.FILENAME}`)){
-        console.log(file.FILENAME);
-        console.log('the filepath you entered was invalid, please try again');
+        console.log('the filepath you entered was invalid, make sure you are entering the path relative to the current state of the terminal');
         file = await askForFile();
     };
+
+    //create a buffer for the file
+
+    //attach the buffer to the body of the request
 };
 run();

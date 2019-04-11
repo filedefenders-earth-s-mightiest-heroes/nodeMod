@@ -25,6 +25,6 @@
     "superagent": "^5.0.2"
   },
   "bin": {
-    "creator": "./index.js"
+    "checkMeOut": "./index.js"
   }
 }
