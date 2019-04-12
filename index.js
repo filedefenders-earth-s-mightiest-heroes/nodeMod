@@ -79,6 +79,6 @@ const run = async () => {
   //attach the buffer to the body of the request
 
   // Andrew - send filepath to Meta Defender API
-  // uploadFile(file.FILENAME);
+  uploadFile(file.FILENAME);
 };
 run();
