@@ -14,14 +14,12 @@ const http = require('https');
 
 const init = () => {
   console.log(
-      chalk.red(
-          figlet.textSync('Check Me Out', {
-            font: "poison",
-            horizontalLayout: "default",
-            verticalLayout: "default"
-          })
-      )
-  );
+    chalk.red(
+    figlet.textSync('Check Me Out', {
+      font: "Poison",
+      horizontalLayout: "default",
+      verticalLayout: "default"
+    })));
 };
 
 const askForFile = () => {
@@ -50,7 +48,22 @@ const uploadFile = (filepath) => {
     // .send("------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"\"; filename=\"C:\\Users\\JeromeJoof\\Desktop\\kayjay.jpg\"\r\nContent-Type: application/pdf\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--")
     .send(filepath)
 
-    .then(console.log)
+    .then(res => {
+      //console.log(res);
+      console.log('------------------------------------------------------------------------');
+      console.log(res.body.data_id);
+      console.log('---------------------------------------------------------------------------');
+      getReport(res.body.data_id);
+    })
+    .catch(console.log);
+};
+
+const getReport = (dataId) => {
+  superagent.get(`https://api.metadefender.com/v4/file/${dataId}`)
+    .set('apikey', `${process.env.API_KEY}`)
+    .then(res => {
+      console.log(res.body);
+    })
     .catch(console.log);
 };
 
