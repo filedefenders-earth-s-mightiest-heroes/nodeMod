@@ -49,26 +49,32 @@ const createBuffer = (file) => {
 
 const uploadFile = (filepath) => {
   superagent.post('https://api.metadefender.com/v4/file')
+  //connor - if filetype scrubbing is supported, set rule for sanitize:
     .set('apikey', `${process.env.API_KEY}`)
     .set('Content-Type', 'application/octet-stream')
     // .send("------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"\"; filename=\"C:\\Users\\JeromeJoof\\Desktop\\kayjay.jpg\"\r\nContent-Type: application/pdf\r\n\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--")
     .send(filepath)
-
     .then(res => {
-      //console.log(res);
-      console.log('------------------------------------------------------------------------');
-      console.log(res.body.data_id);
-      console.log('---------------------------------------------------------------------------');
-      getReport(res.body.data_id);
+      getReport(res.body.data_id, filepath);
     })
     .catch(console.log);
 };
 
-const getReport = (dataId) => {
+const getReport = (dataId, filepath) => {
   superagent.get(`https://api.metadefender.com/v4/file/${dataId}`)
     .set('apikey', `${process.env.API_KEY}`)
     .then(res => {
-      console.log(res.body);
+      let progress = res.body.scan_results.scan_all_result_a;
+      if (progress === 'In Progress'){
+        getReport(dataId);
+      }else{
+        let report = {
+          status: progress,
+          ID:dataId,
+          filePath:filepath
+        };
+        endGame(report);
+      }
     })
     .catch(console.log);
 };
@@ -88,12 +94,13 @@ const getChoice = () =>{
   return (inquirer.prompt(onCompromised));
 };
 
-const endGame = async (file, safe)=>{
-  if (safe){
-    console.log(chalk.green(`✓ ${file.FILEPATH} is confirmed as a clean file`));
+const endGame = (report)=>{
+  console.log(report);
+  if (report.status==='No Threat Detected'){
+    console.log(chalk.green(`✓ ${report.filePath} is confirmed as a clean file`));
   }else {
-    console.log(chalk.red(`⚠ ${file.FILEPATH} appears to be compromised.`));
-      switch (await getChoice()) {
+    console.log(chalk.red(`⚠ ${report.filePath} appears to be compromised.`));
+      switch (getChoice()) {
         case 'see report':
           console.log(chalk.blue('REPORT WOULD GO HERE'));
           break;
@@ -123,14 +130,12 @@ const run = async () => {
   }
   // Andrew - resolve relative paths to absolute
   file.FILENAME = resolve(file.FILENAME);
-  console.log(file.FILENAME);
   //create a buffer for the file
   // Andrew - waiting until after MVP to do it use this
   // const buffer = createBuffer(`${file.FILENAME}`);
   //attach the buffer to the body of the request
   // Andrew - send filepath to Meta Defender API
-  await uploadFile(file.FILENAME);
-  endGame(file,false);
+  uploadFile(file.FILENAME);
 };
 
 run();
