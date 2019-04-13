@@ -12,6 +12,12 @@ const resolve = require('path').resolve;
 const superagent = require('superagent');
 const http = require('https');
 
+//node modules
+//const user= require("user.js");
+
+//state of the running application
+//const state{}
+
 const init = () => {
   console.log(
       chalk.red(
@@ -54,6 +60,41 @@ const uploadFile = (filepath) => {
     .catch(console.log);
 };
 
+const getChoice = () =>{
+    const onCompromised = [
+      {
+        type: "list",
+        name: "DECISION",
+        message: "What would you like to do?",
+        choices: ["ignore", "replace", "see report"],
+        filter: function (val) {
+          return val.split(".")[1];
+        }
+      }
+    ];
+  return (inquirer.prompt(onCompromised));
+};
+
+const endGame = async (file, safe)=>{
+  if (safe){
+    console.log(chalk.green(`✓ ${file.FILEPATH} is confirmed as a clean file`));
+  }else {
+    console.log(chalk.red(`⚠ ${file.FILEPATH} appears to be compromised.`));
+      switch (await getChoice()) {
+        case 'see report':
+          console.log(chalk.blue('REPORT WOULD GO HERE'));
+          break;
+        case 'replace':
+        //GET the scrubbed file from the api and replace our compromised file
+          console.log(chalk.blue('RUN GET SCRUBBED FILE'));
+          console.log(chalk.blue('REWRITE OVER COMPROMISED FILE'));
+          break;
+        case 'ignore':
+          break;
+      }
+    }
+};
+
 const run = async () => {
   //show script intro
   init();
@@ -61,7 +102,6 @@ const run = async () => {
   let file = "badFilePath";
   //check to see if a file exists at the filepath
   file = await askForFile();
-
   // Andrew - ensure file exists and is a file rather than directory, symlink, etc...
   while (!fs.existsSync(`${file.FILENAME}`) || !fs.statSync(file.FILENAME).isFile()) {
     // console.log(fs.statSync(file.FILENAME).isFile());
@@ -71,14 +111,13 @@ const run = async () => {
   // Andrew - resolve relative paths to absolute
   file.FILENAME = resolve(file.FILENAME);
   console.log(file.FILENAME);
-
   //create a buffer for the file
   // Andrew - waiting until after MVP to do it use this
   // const buffer = createBuffer(`${file.FILENAME}`);
-
   //attach the buffer to the body of the request
-
   // Andrew - send filepath to Meta Defender API
-  uploadFile(file.FILENAME);
+  await uploadFile(file.FILENAME);
+  endGame(file,false);
 };
+
 run();
