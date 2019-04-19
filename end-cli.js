@@ -11,7 +11,7 @@ const http = require('https');
 const fs = require("fs");
 
 
-
+// This renders on the terminal once you run the checkmeout command
 const getChoice = () =>{
     const onCompromised = [
         {
@@ -27,7 +27,9 @@ const getChoice = () =>{
     return (inquirer.prompt(onCompromised));
 };
 
-const endGame = (report)=>{
+// This is the result of the report from the metadefender api
+
+module.exports.end = (report)=>{
     console.log(report);
     if (report.status==='No Threat Detected'){
         console.log(chalk.green(`✓ ${report.filePath} is confirmed as a clean file`));
